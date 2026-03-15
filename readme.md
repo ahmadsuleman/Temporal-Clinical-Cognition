@@ -34,6 +34,12 @@ https://github.com/ahmadsuleman/Multi_Model-Clinical-Dataset-Generator.git
 ```
 ---
 
+# Methodology Summary
+
+The proposed system follows a modular multimodal processing architecture designed to transform raw clinician interaction data into structured behavioral representations for unsupervised pattern discovery. The architecture consists of five sequential layers: data ingestion, modality-specific feature extraction, multimodal representation construction, unsupervised clustering, and behavioral analysis.
+
+---
+
 ## Implementation Summary
 
 The overall architecture integrates computer vision interaction analytics, natural language processing, dimensionality reduction, and density-based unsupervised learning within a unified analytical pipeline. The system is implemented entirely in Python, combining scientific computing tools with modern NLP and machine learning frameworks to enable reproducible analysis of multimodal clinician interaction data.
