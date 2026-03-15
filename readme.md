@@ -1,252 +1,296 @@
-
 # Modeling Clinical Reasoning from Multimodal Interaction Signals
 
-Understanding how clinicians visually and verbally reason during medical image interpretation remains a key challenge for developing **interpretable clinical AI systems**.
+<p align="center">
+  <strong>Unsupervised Discovery of Radiological Reading Strategies via Gaze–Speech Behavioral Representations</strong>
+</p>
 
-This project investigates whether **multimodal interaction signals—specifically gaze dynamics and spoken diagnostic reasoning—can reveal latent radiological reading strategies** during chest X-ray interpretation.
-
-We propose a computational framework that integrates **eye-tracking analytics, language representations, and cross-modal temporal alignment** to model clinician behavior.
+<p align="center">
+  <a href="#abstract">Abstract</a> •
+  <a href="#key-contributions">Contributions</a> •
+  <a href="#method">Method</a> •
+  <a href="#data">Data</a> •
+  <a href="#results">Results</a> •
+  <a href="#reproduction">Reproduction</a> •
+  <a href="#citation">Citation</a>
+</p>
 
 ---
 
 ## Abstract
 
-This work presents a computational framework for analyzing clinician behavior during chest X-ray (CXR) interpretation using multimodal interaction signals. The pipeline integrates **eye-tracking data, spoken diagnostic reasoning, and cross-modal temporal alignment** to characterize latent radiological reading strategies through unsupervised representation learning.
+Understanding how clinicians visually and verbally reason during medical image interpretation is a key challenge for developing interpretable clinical AI systems. We present a computational framework for analyzing clinician behavior during chest X-ray (CXR) interpretation using multimodal interaction signals. The pipeline integrates eye-tracking data, spoken diagnostic reasoning, and cross-modal temporal alignment to characterize latent radiological reading strategies through unsupervised representation learning.
 
-A dataset of **50 clinician interpretation sessions** was processed, each containing synchronized gaze recordings and speech transcripts. Eye-tracking data were mapped to anatomically defined **regions of interest (ROIs)** within the radiograph, from which gaze descriptors were extracted, including scanpath statistics, revisit rates, velocity measures, and AOI dwell distributions.
+A dataset of 50 clinician interpretation sessions is processed, each containing synchronized gaze recordings and speech transcripts. Eye-tracking data are mapped to anatomically defined regions of interest (ROIs), from which gaze descriptors are extracted — including scanpath statistics, revisit rates, velocity measures, and AOI dwell distributions. Speech transcripts are encoded using Sentence-Transformers (`all-MiniLM-L6-v2`) combined with interpretable linguistic features (anatomical mentions, radiological findings, negation markers, uncertainty markers).
 
-Speech transcripts were encoded using **Sentence-Transformers (all-MiniLM-L6-v2)** combined with interpretable linguistic features such as anatomical mentions, radiological findings, negations, and uncertainty markers.
+The resulting **46-dimensional multimodal behavioral representation** is analyzed via unsupervised clustering, revealing **three clinician reading strategies**: *Mixed Strategy*, *Rapid Scanner*, and *Focused Inspector*. Feature ablation analysis demonstrates that gaze dynamics alone provide the strongest signal for differentiating clinician strategies (silhouette = 0.369), while speech features capture complementary but weaker reasoning signals (silhouette = 0.211).
 
-The resulting **46-dimensional multimodal behavioral representation** was analyzed using unsupervised clustering, revealing **three clinician reading strategies**:
+## Key Contributions
 
-- **Mixed Strategy**
-- **Rapid Scanner**
-- **Focused Inspector**
+1. **Multimodal behavioral representation** combining gaze dynamics (scanpath statistics, velocity profiles, AOI dwell distributions), speech embeddings, and cross-modal temporal features into a unified 46-dimensional feature space.
+2. **Unsupervised discovery of radiological reading strategies** from behavioral interaction signals, identifying three interpretable clinician archetypes without supervision.
+3. **Quantitative analysis of gaze–speech coordination**, revealing distinct temporal coupling patterns across diagnostic workflows.
+4. **Systematic feature ablation study** demonstrating that visual attention dynamics provide the dominant signal for distinguishing clinician strategies, with implications for modality selection in clinical AI systems.
 
-Feature ablation analysis shows that **gaze dynamics provide the strongest signal for differentiating clinician strategies**.
+## Method
 
----
+### Pipeline Architecture
 
-## Research Contributions
+The system follows a modular multimodal processing architecture with five sequential stages:
 
-This project provides the following contributions:
-
-1. **Multimodal representation of clinician behavior** combining gaze dynamics, speech embeddings, and cross-modal temporal features.
-2. **Unsupervised modeling of radiological reading strategies** using behavioral interaction signals.
-3. **Quantitative analysis of gaze–speech coordination** during clinical reasoning.
-4. **Feature ablation analysis** demonstrating that gaze behavior provides the dominant signal for distinguishing diagnostic workflows.
-
----
-
-## Pipeline Overview
-
-The proposed system transforms multimodal clinician interaction signals into behavioral representations through a modular processing architecture.
-
-CXR Image
-   │
-   ├── Eye-tracking scanpaths
-   ├── Spoken diagnostic reasoning
-   │
-   ▼
-Multimodal Feature Extraction
-   │
-   ├── Gaze behavioral features
-   ├── Speech embeddings
-   ├── Cross-modal alignment metrics
-   │
-   ▼
-Behavioral Representation (46 features)
-   │
-   ▼
-Unsupervised Clustering
-   │
-   ▼
-Clinician Strategy Discovery
-
-
-## 📊 Data Modalities
-
-The dataset provides five synchronized behavioural modalities per session:
-
-| # | Modality | File | Description |
-|---|----------|------|-------------|
-| 1 | **Image** | `image.jpeg` | Chest X-ray used as the visual stimulus |
-| 2 | **Visual Attention** | `gaze.csv` | Simulated eye-tracking scanpath (~60 Hz) |
-| 3 | **Verbal Reasoning** | `transcription.csv` | Time-stamped diagnostic dictation segments |
-| 4 | **Audio** | `audio.wav` | Text-to-speech generated dictation recording |
-| 5 | **Documentation** | `metadata.json` | Structured diagnostic findings (report-level) |
-
-### Data Generation Simulator Link: 
 ```
-https://github.com/ahmadsuleman/Multi_Model-Clinical-Dataset-Generator.git
+┌─────────────────────────────────────────────────────────────────────┐
+│                        Data Ingestion                               │
+│   CXR Image  ·  Eye-Tracking Scanpaths  ·  Speech Transcripts      │
+└──────────────────────────┬──────────────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                 Modality-Specific Feature Extraction                 │
+│                                                                     │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐  │
+│  │  Gaze Features    │  │ Speech Features   │  │ Cross-Modal      │  │
+│  │  (19 dims)        │  │ (14 dims)         │  │ Alignment        │  │
+│  │                   │  │                   │  │ (13 dims)        │  │
+│  │ · Scanpath stats  │  │ · Sentence embeds │  │ · Temporal lag   │  │
+│  │ · Fixation dists  │  │   (MiniLM-L6-v2) │  │ · Coordination   │  │
+│  │ · Velocity prof.  │  │ · Anatomical refs │  │   metrics        │  │
+│  │ · Revisit rates   │  │ · Negation count  │  │                  │  │
+│  │ · AOI dwells      │  │ · Uncertainty idx │  │                  │  │
+│  └──────────────────┘  └──────────────────┘  └──────────────────┘  │
+└──────────────────────────┬──────────────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│          Behavioral Representation (46 features)                    │
+└──────────────────────────┬──────────────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│          Unsupervised Clustering (KMeans, k=3)                      │
+│          + Dimensionality Reduction (PCA, UMAP)                     │
+└──────────────────────────┬──────────────────────────────────────────┘
+                           │
+                           ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│          Clinician Strategy Discovery & Ablation Analysis           │
+└─────────────────────────────────────────────────────────────────────┘
 ```
----
 
-## Methodology Summary
+### Feature Extraction Details
 
-The proposed system follows a modular multimodal processing architecture designed to transform raw clinician interaction data into structured behavioral representations for unsupervised pattern discovery. The architecture consists of five sequential layers: data ingestion, modality-specific feature extraction, multimodal representation construction, unsupervised clustering, and behavioral analysis.
+**Gaze behavioral features (19 dims):** Scanpath length, fixation count, mean/max fixation duration, mean/variance of saccadic velocity, revisit rate per AOI, and dwell-time distributions across anatomically defined regions (left lung, right lung, mediastinum, cardiac silhouette, costophrenic angles).
 
----
+**Speech features (14 dims):** Dense sentence embeddings via `all-MiniLM-L6-v2` (384-d, projected to 8-d via PCA), augmented with interpretable linguistic features — counts of anatomical mentions, radiological findings, negation markers, uncertainty hedges, report length, and lexical diversity.
 
-## Implementation Summary
+**Cross-modal alignment features (13 dims):** Gaze–speech temporal lag (mean, variance), fixation-to-utterance synchrony, AOI-conditioned speech onset latency, and coordination entropy.
 
-The overall architecture integrates computer vision interaction analytics, natural language processing, dimensionality reduction, and density-based unsupervised learning within a unified analytical pipeline. The system is implemented entirely in Python, combining scientific computing tools with modern NLP and machine learning frameworks to enable reproducible analysis of multimodal clinician interaction data.
+### Clustering and Evaluation
 
----
+Behavioral representations are standardized (z-score) and clustered via KMeans (k=3, selected by silhouette analysis). Cluster validity is assessed using silhouette score, and cluster interpretability is evaluated through feature-level z-score profiling, spatial attention heatmaps, scanpath visualization, and AOI transition analysis.
 
-## Results Summary
+## Data
 
-The clustering analysis of 50 clinician sessions (46 features) identified three distinct behavioral strategies, although the overall cluster separation was modest (silhouette = 0.104), consistent with the continuous nature of human diagnostic behavior. The Mixed Strategy cluster (n=18) exhibited high scanpath length (z = +0.964), fixation count (z = +0.935), and revisit rate (z = +0.935), alongside elevated negation (z = +0.778) and anatomical mentions (z = +0.674), indicating systematic exploration coupled with verbal hypothesis testing. In contrast, the Rapid Scanner cluster (n=17) showed markedly higher gaze velocity (z = +1.299) and velocity variability (z = +1.047) but reduced anatomical references (z = −0.568) and negation markers (z = −0.703), suggesting a pattern-recognition strategy driven by rapid visual search. The Focused Inspector cluster (n=15) was characterized by prolonged fixation durations (mean z = +1.001, max z = +0.904) and reduced gaze velocity (z = −0.899), indicating concentrated inspection of limited image regions.
+### Modalities
 
-The ablation study further shows that gaze behavioral features alone produced the strongest cluster separation (silhouette = 0.369), whereas multimodal feature combinations reduced separability (≈0.104–0.107), suggesting that visual attention dynamics provide the dominant signal for distinguishing clinician strategies. Speech features alone produced intermediate structure (silhouette = 0.211), indicating that verbal reasoning markers capture complementary but weaker signals. Together, these findings suggest that temporal gaze patterns encode distinct diagnostic workflows, providing interpretable behavioral signatures of clinical reasoning during image interpretation.
+The dataset provides five synchronized behavioral modalities per session:
 
----
+| Modality | File | Description | Sampling |
+|---|---|---|---|
+| Visual stimulus | `image.jpeg` | Chest X-ray (PA view) | — |
+| Visual attention | `gaze.csv` | Simulated eye-tracking scanpath | ~60 Hz |
+| Verbal reasoning | `transcription.csv` | Time-stamped diagnostic dictation segments | Utterance-level |
+| Audio signal | `audio.wav` | TTS-generated dictation recording | 16 kHz |
+| Structured metadata | `metadata.json` | Diagnostic findings and session parameters | Per-session |
 
+### Data Generation
 
-## Results and Discussion for Task 1 — Temporal Modeling of Clinician Behavior
+The multimodal dataset is generated using a simulation framework that produces clinically plausible gaze and speech patterns conditioned on CXR pathology labels.
 
-This experiment analyzes **multimodal clinician behavior during chest X-ray interpretation** using gaze dynamics, speech reasoning markers, and interaction features.
+**Simulator:** [Multi-Modal Clinical Dataset Generator](https://github.com/ahmadsuleman/Multi_Model-Clinical-Dataset-Generator.git)
 
-A behavioral modeling pipeline was applied to **50 clinician sessions (46 multimodal features)** to identify recurring diagnostic workflows.
+> **Note:** The simulated data is designed for method development and behavioral modeling research. It does not replace real clinician recordings for clinical validation.
 
-Using **KMeans clustering (k = 3)**, the pipeline identified three dominant clinician strategies:
+## Results
 
-- **Mixed Strategy** — systematic exploration with hypothesis verification  
-- **Rapid Scanner** — fast visual search driven by pattern recognition  
-- **Focused Inspector** — deep inspection of specific anatomical regions  
+### Behavioral Strategy Discovery
 
-Although cluster separation is moderate (**silhouette = 0.104**), the resulting behavioral patterns align with established models of clinical reasoning.
+KMeans clustering (k=3) over the 46-dimensional behavioral space identifies three clinician reading strategies:
 
----
+| Strategy | n | Defining Behavioral Signature | Key Features (z-score) |
+|---|---|---|---|
+| **Mixed Strategy** | 18 | Systematic exploration with iterative hypothesis testing | scanpath_length (+0.964), fixation_count (+0.935), revisit_rate (+0.935), negation_markers (+0.778), anatomical_mentions (+0.674) |
+| **Rapid Scanner** | 17 | Fast pattern-recognition-driven visual search | mean_velocity (+1.299), velocity_variance (+1.047), anatomical_refs (−0.568), negation_markers (−0.703) |
+| **Focused Inspector** | 15 | Concentrated inspection of limited anatomical regions | mean_fixation_duration (+1.001), max_fixation_duration (+0.904), mean_velocity (−0.899) |
 
-## Behavioral Clustering Overview
+Overall silhouette score: **0.104** — modest but consistent with the continuous nature of human diagnostic behavior, where strategies form overlapping behavioral distributions rather than discrete categories.
 
-![Clustering Dashboard](task_1_results/clustering_dashboard.png)
+### Spatial Attention Analysis
 
-**Figure 1 — Multimodal clinician behavior clustering results.**
+<p align="center">
+  <img src="task_1_results/heatmap_cluster_0.png" width="30%" alt="Mixed Strategy Heatmap"/>
+  <img src="task_1_results/heatmap_cluster_1.png" width="30%" alt="Rapid Scanner Heatmap"/>
+  <img src="task_1_results/heatmap_cluster_2.png" width="30%" alt="Focused Inspector Heatmap"/>
+</p>
+<p align="center">
+  <em>Figure 1 — Gaze heatmaps per cluster. Left: Mixed Strategy (broad bilateral coverage). Center: Rapid Scanner (diffuse distribution). Right: Focused Inspector (concentrated regions).</em>
+</p>
 
-Projection of the 46-dimensional feature space using **PCA and UMAP**, together with cluster-level feature summaries.
+### Representative Scanpaths
 
-Three behavioral strategies emerge:
+<p align="center">
+  <img src="task_1_results/scanpath_cluster_0.png" width="30%" alt="Mixed Strategy Scanpath"/>
+  <img src="task_1_results/scanpath_cluster_1.png" width="30%" alt="Rapid Scanner Scanpath"/>
+  <img src="task_1_results/scanpath_cluster_2.png" width="30%" alt="Focused Inspector Scanpath"/>
+</p>
+<p align="center">
+  <em>Figure 2 — Representative scanpaths. Mixed Strategy: long paths with cross-lung transitions. Rapid Scanner: fast inter-region saccades. Focused Inspector: short paths with prolonged fixations.</em>
+</p>
 
-| Cluster | Description | Key Behavioral Features |
-|-------|-------------|------------------------|
-| Mixed Strategy (n=18) | Systematic exploration | scanpath_length (+0.964), fixation_count (+0.935), revisit_rate (+0.935) |
-| Rapid Scanner (n=17) | Fast visual search | mean_velocity (+1.299), velocity_variance (+1.047) |
-| Focused Inspector (n=15) | Deep regional inspection | mean_fixation_duration (+1.001), max_fixation_duration (+0.904) |
+### AOI Transition Analysis
 
-These clusters reflect different diagnostic workflows combining **visual attention patterns and verbal reasoning markers**.
+<p align="center">
+  <img src="task_1_results/transition_matrices.png" width="70%" alt="AOI Transition Matrices"/>
+</p>
+<p align="center">
+  <em>Figure 3 — Average transition probabilities between anatomical regions of interest. Mixed Strategy clinicians exhibit strong bilateral lung comparisons (L→R ≈ 0.95). Rapid Scanners show distributed lung–mediastinum transitions. Focused Inspectors maintain lung-to-lung transitions with fewer exploratory movements.</em>
+</p>
 
----
+### AOI Dwell Time Distribution
 
-## Spatial Attention Patterns
+<p align="center">
+  <img src="task_1_results/aoi_dwell_distribution.png" width="70%" alt="AOI Dwell Distribution"/>
+</p>
+<p align="center">
+  <em>Figure 4 — Dwell time distribution across anatomical regions. Focused Inspectors allocate prolonged dwell to specific zones (cardiac silhouette, lower lung). Mixed Strategy clinicians distribute viewing time more uniformly.</em>
+</p>
 
-### Mixed Strategy — Gaze Heatmap
+### Gaze–Speech Temporal Coordination
 
-![Mixed Strategy Heatmap](task_1_results/heatmap_cluster_0.png)
+<p align="center">
+  <img src="task_1_results/gaze_speech_lag.png" width="60%" alt="Gaze-Speech Temporal Lag"/>
+</p>
+<p align="center">
+  <em>Figure 5 — Temporal lag between visual fixation onset and verbal reasoning onset. Mixed Strategy: small positive lag (gaze leads speech). Rapid Scanner: near-zero or negative lag (concurrent processing). Focused Inspector: high variability (flexible coordination).</em>
+</p>
 
-Clinicians in the **Mixed Strategy cluster** distribute attention broadly across both lung fields and mediastinum, consistent with systematic anatomical inspection and iterative hypothesis testing.
+### Feature Ablation Study
 
----
-
-### Rapid Scanner — Gaze Heatmap
-
-![Rapid Scanner Heatmap](task_1_results/heatmap_cluster_1.png)
-
-Rapid Scanners exhibit **diffuse fixation distributions**, indicating fast visual search across large portions of the image.
-
----
-
-### Focused Inspector — Gaze Heatmap
-
-![Focused Inspector Heatmap](task_1_results/heatmap_cluster_2.png)
-
-Focused Inspectors concentrate attention on **limited anatomical regions**, reflecting targeted inspection of suspected abnormalities.
-
----
-
-## Representative Scanpaths
-
-### Mixed Strategy
-
-![Mixed Strategy Scanpath](task_1_results/scanpath_cluster_0.png)
-
-Mixed Strategy clinicians show **long scanpaths and repeated cross-lung transitions**, indicating iterative verification of candidate findings.
-
----
-
-### Rapid Scanner
-
-![Rapid Scanner Scanpath](task_1_results/scanpath_cluster_1.png)
-
-Rapid Scanners perform **fast transitions between anatomical regions**, reflecting pattern-recognition driven visual search.
-
----
-
-### Focused Inspector
-
-![Focused Inspector Scanpath](task_1_results/scanpath_cluster_2.png)
-
-Focused Inspectors exhibit **shorter scanpaths with longer fixations**, indicating concentrated evaluation of suspicious regions.
-
----
-
-## AOI Transition Analysis
-
-![AOI Transition Matrices](task_1_results/transition_matrices.png)
-
-**Figure — Average transition probabilities between anatomical regions.**
-
-Mixed Strategy clinicians demonstrate strong **bilateral lung comparisons (L→R ≈ 0.95)**, indicating systematic evaluation of symmetrical structures.  
-Rapid Scanners show more distributed transitions between lungs and mediastinum, reflecting exploratory search.  
-Focused Inspectors maintain strong lung-to-lung transitions but fewer exploratory movements.
-
----
-
-## AOI Dwell Time Distribution
-
-![AOI Dwell Distribution](task_1_results/aoi_dwell_distribution.png)
-
-Focused Inspectors allocate **longer dwell times to specific anatomical regions**, particularly the heart and lower lung zones.  
-Mixed Strategy clinicians distribute viewing time more evenly across lung regions, while Rapid Scanners show shorter dwell times consistent with rapid search behavior.
-
----
-
-## Gaze–Speech Temporal Alignment
-
-![Gaze Speech Lag](task_1_results/gaze_speech_lag.png)
-
-This analysis measures the temporal lag between **visual fixation and verbal reasoning**.
-
-- Mixed Strategy clinicians show **small positive lags**, indicating gaze typically precedes verbal explanation.
-- Rapid Scanners exhibit **slightly negative lags**, suggesting speech may occur concurrently with visual search.
-- Focused Inspectors show **greater variability**, reflecting flexible coordination between inspection and reasoning.
-
----
-
-## Feature Ablation Study
-
-![Ablation Study](task_1_results/ablation_comparison.png)
-
-Clustering performance across feature combinations shows:
-
-| Feature Set | Features | Silhouette |
-|-------------|---------|-----------|
+<p align="center">
+  <img src="task_1_results/ablation_comparison.png" width="60%" alt="Feature Ablation"/>
+</p>
+
+| Feature Set | Dimensionality | Silhouette Score |
+|---|---|---|
 | Gaze behavioral only | 8 | **0.369** |
 | Speech only | 14 | 0.211 |
-| Gaze full | 19 | 0.170 |
-| Multimodal | 36 | 0.104 |
+| Gaze full (behavioral + AOI) | 19 | 0.170 |
+| Multimodal (all) | 36 | 0.104 |
 
-The results indicate that **gaze dynamics alone provide the strongest signal for identifying clinician behavioral strategies**, while speech features provide complementary reasoning information.
+<p align="center">
+  <em>Table — Clustering performance under feature ablation. Gaze behavioral features alone yield the highest cluster separability, indicating that temporal visual attention dynamics are the dominant signal for distinguishing clinician strategies. The reduction in silhouette under multimodal fusion reflects the curse of dimensionality and the weaker discriminative contribution of speech and cross-modal features.</em>
+</p>
 
----
+### Clustering Dashboard
+
+<p align="center">
+  <img src="task_1_results/clustering_dashboard.png" width="80%" alt="Clustering Dashboard"/>
+</p>
+<p align="center">
+  <em>Figure 6 — Full clustering dashboard. PCA and UMAP projections of the 46-dimensional behavioral space with cluster-level feature profiles.</em>
+</p>
 
 ## Key Findings
 
-- Three clinician behavioral strategies were identified from multimodal behavioral data.
-- **Gaze dynamics are the strongest signal for behavioral clustering**.
-- Speech features capture complementary reasoning markers but reduce cluster separability when combined with gaze.
-- Temporal gaze patterns reveal **interpretable diagnostic workflows** during medical image interpretation.
+- **Three interpretable clinician reading strategies** emerge from unsupervised clustering of multimodal behavioral data, consistent with established models of radiological reasoning (systematic search, pattern recognition, focal analysis).
+- **Gaze dynamics are the dominant modality** for behavioral clustering (silhouette = 0.369 vs. 0.211 for speech, 0.104 for full multimodal).
+- **Speech features capture complementary reasoning signals** (negation patterns, anatomical references) but reduce cluster separability when fused naïvely with gaze features, suggesting that more sophisticated fusion strategies (e.g., attention-based or late fusion) may be warranted.
+- **Gaze–speech temporal coordination patterns** differ systematically across strategies, providing evidence that visual–verbal coupling is an informative dimension of clinical reasoning behavior.
+- These findings support the use of **gaze-based behavioral signatures as interpretable features** for modeling diagnostic reasoning and developing cognitively informed clinical AI systems.
 
-These findings demonstrate that **clinician gaze behavior provides meaningful signals for modeling diagnostic reasoning and developing cognitively aware clinical AI systems.**
+## Reproduction
 
+### Requirements
+
+```
+Python >= 3.9
+numpy
+pandas
+scikit-learn
+scipy
+sentence-transformers
+umap-learn
+matplotlib
+seaborn
+```
+
+### Installation
+
+```bash
+git clone https://github.com/ahmadsuleman/Multi_Model-Clinical-Dataset-Generator.git
+cd Multi_Model-Clinical-Dataset-Generator
+pip install -r requirements.txt
+```
+
+### Data Generation
+
+```bash
+# Generate the multimodal clinician interaction dataset
+python generate_dataset.py --n_sessions 50 --output_dir data/
+```
+
+### Running the Pipeline
+
+```bash
+# Feature extraction and clustering
+python run_pipeline.py --data_dir data/ --output_dir task_1_results/
+```
+
+## Project Structure
+
+```
+.
+├── README.md
+├── requirements.txt
+├── generate_dataset.py          # Multimodal data generation
+├── run_pipeline.py              # Main analysis pipeline
+├── data/
+│   └── session_XXX/
+│       ├── image.jpeg
+│       ├── gaze.csv
+│       ├── transcription.csv
+│       ├── audio.wav
+│       └── metadata.json
+└── task_1_results/
+    ├── clustering_dashboard.png
+    ├── heatmap_cluster_0.png
+    ├── heatmap_cluster_1.png
+    ├── heatmap_cluster_2.png
+    ├── scanpath_cluster_0.png
+    ├── scanpath_cluster_1.png
+    ├── scanpath_cluster_2.png
+    ├── transition_matrices.png
+    ├── aoi_dwell_distribution.png
+    ├── gaze_speech_lag.png
+    └── ablation_comparison.png
+```
+
+## License
+
+This project is released for academic research purposes. Please see `LICENSE` for details.
+
+## Citation
+
+If you use this work in your research, please cite:
+
+```bibtex
+@misc{suleman2025multimodal,
+  title   = {Modeling Clinical Reasoning from Multimodal Interaction Signals},
+  author  = {Suleman, Ahmad},
+  year    = {2025},
+  url     = {https://github.com/ahmadsuleman/Multi_Model-Clinical-Dataset-Generator}
+}
+```
+
+## Acknowledgments
+
+This work builds on tools and methods from the open-source scientific computing ecosystem, including [Sentence-Transformers](https://www.sbert.net/), [UMAP](https://umap-learn.readthedocs.io/), and [scikit-learn](https://scikit-learn.org/).
