@@ -1,0 +1,60 @@
+============================================================
+CXR Clinician Behaviour Pipeline — Run Summary
+============================================================
+
+Feature matrix : 50 sessions × 46 features
+Clustering     : KMeans  k=3  silhouette=0.1040
+
+Cluster Profiles
+----------------------------------------
+  Cluster 0 — "Mixed Strategy (n=18)"  (n=18)
+    scanpath_length                            z=+0.964
+    fixation_count                             z=+0.935
+    revisit_rate                               z=+0.935
+    negation_count                             z=+0.778
+    anatomy_mentions                           z=+0.674
+  Cluster 1 — "Rapid Scanner"  (n=17)
+    mean_velocity                              z=+1.299
+    std_velocity                               z=+1.047
+    negation_count                             z=-0.703
+    scanpath_length                            z=-0.603
+    anatomy_mentions                           z=-0.568
+  Cluster 2 — "Focused Inspector"  (n=15)
+    mean_fixation_duration                     z=+1.001
+    max_fixation_duration                      z=+0.904
+    mean_velocity                              z=-0.899
+    fixation_count                             z=-0.602
+    revisit_rate                               z=-0.602
+
+Ablation Results
+----------------------------------------
+  Condition                              Feats       Sil     k
+  Gaze behavioral only (8)                   8    0.3689     3
+  Gaze full (trans+scalar+dwell)            19    0.1700     5
+  Speech only (PCA + keywords)              14    0.2111     6
+  Gaze full + Speech                        33    0.1071     3
+  Gaze + Speech + Alignment                 36    0.1037     7
+  Full multimodal                           36    0.1037     7
+
+Saved Files
+----------------------------------------
+  outputs/ablation_comparison.png
+  outputs/ablation_results.json
+  outputs/aoi_dwell_distribution.png
+  outputs/clustering_dashboard.png
+  outputs/clustering_results.png
+  outputs/gaze_speech_lag.png
+  outputs/heatmap_cluster_0.png
+  outputs/heatmap_cluster_1.png
+  outputs/heatmap_cluster_2.png
+  outputs/heatmap_cluster_3.png
+  outputs/heatmap_cluster_4.png
+  outputs/heatmap_cluster_5.png
+  outputs/run_summary.txt
+  outputs/scanpath_cluster_0.png
+  outputs/scanpath_cluster_1.png
+  outputs/scanpath_cluster_2.png
+  outputs/scanpath_cluster_3.png
+  outputs/scanpath_cluster_4.png
+  outputs/scanpath_cluster_5.png
+  outputs/transition_matrices.png
