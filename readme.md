@@ -34,7 +34,7 @@ https://github.com/ahmadsuleman/Multi_Model-Clinical-Dataset-Generator.git
 ```
 ---
 
-# Methodology Summary
+## Methodology Summary
 
 The proposed system follows a modular multimodal processing architecture designed to transform raw clinician interaction data into structured behavioral representations for unsupervised pattern discovery. The architecture consists of five sequential layers: data ingestion, modality-specific feature extraction, multimodal representation construction, unsupervised clustering, and behavioral analysis.
 
@@ -43,4 +43,12 @@ The proposed system follows a modular multimodal processing architecture designe
 ## Implementation Summary
 
 The overall architecture integrates computer vision interaction analytics, natural language processing, dimensionality reduction, and density-based unsupervised learning within a unified analytical pipeline. The system is implemented entirely in Python, combining scientific computing tools with modern NLP and machine learning frameworks to enable reproducible analysis of multimodal clinician interaction data.
+
+---
+
+## Results Interpertation
+
+The clustering analysis of 50 clinician sessions (46 features) identified three distinct behavioral strategies, although the overall cluster separation was modest (silhouette = 0.104), consistent with the continuous nature of human diagnostic behavior. The Mixed Strategy cluster (n=18) exhibited high scanpath length (z = +0.964), fixation count (z = +0.935), and revisit rate (z = +0.935), alongside elevated negation (z = +0.778) and anatomical mentions (z = +0.674), indicating systematic exploration coupled with verbal hypothesis testing. In contrast, the Rapid Scanner cluster (n=17) showed markedly higher gaze velocity (z = +1.299) and velocity variability (z = +1.047) but reduced anatomical references (z = −0.568) and negation markers (z = −0.703), suggesting a pattern-recognition strategy driven by rapid visual search. The Focused Inspector cluster (n=15) was characterized by prolonged fixation durations (mean z = +1.001, max z = +0.904) and reduced gaze velocity (z = −0.899), indicating concentrated inspection of limited image regions.
+
+The ablation study further shows that gaze behavioral features alone produced the strongest cluster separation (silhouette = 0.369), whereas multimodal feature combinations reduced separability (≈0.104–0.107), suggesting that visual attention dynamics provide the dominant signal for distinguishing clinician strategies. Speech features alone produced intermediate structure (silhouette = 0.211), indicating that verbal reasoning markers capture complementary but weaker signals. Together, these findings suggest that temporal gaze patterns encode distinct diagnostic workflows, providing interpretable behavioral signatures of clinical reasoning during image interpretation.
 
