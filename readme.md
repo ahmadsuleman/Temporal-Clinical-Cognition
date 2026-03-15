@@ -1,19 +1,67 @@
 
-## **Abstract**
+# Modeling Clinical Reasoning from Multimodal Interaction Signals
+
+Understanding how clinicians visually and verbally reason during medical image interpretation remains a key challenge for developing **interpretable clinical AI systems**.
+
+This project investigates whether **multimodal interaction signals—specifically gaze dynamics and spoken diagnostic reasoning—can reveal latent radiological reading strategies** during chest X-ray interpretation.
+
+We propose a computational framework that integrates **eye-tracking analytics, language representations, and cross-modal temporal alignment** to model clinician behavior.
+
+---
+
+## Abstract
 
 This work presents a computational framework for analyzing clinician behavior during chest X-ray (CXR) interpretation using multimodal interaction signals. The pipeline integrates **eye-tracking data, spoken diagnostic reasoning, and cross-modal temporal alignment** to characterize latent radiological reading strategies through unsupervised representation learning.
 
-A dataset of **50 clinician interpretation sessions** was processed, each containing synchronized gaze recordings and speech transcripts. Eye-tracking data were mapped to anatomically defined **regions of interest (ROIs)** within the radiograph, from which gaze descriptors were extracted, including scanpath statistics, revisit rates, velocity measures, and **AOI dwell distributions**. Spatial attention dynamics were further modeled using **AOI transition matrices**, which were reduced via **Principal Component Analysis (PCA)** to obtain compact representations of visual search behavior.
+A dataset of **50 clinician interpretation sessions** was processed, each containing synchronized gaze recordings and speech transcripts. Eye-tracking data were mapped to anatomically defined **regions of interest (ROIs)** within the radiograph, from which gaze descriptors were extracted, including scanpath statistics, revisit rates, velocity measures, and AOI dwell distributions.
 
-Speech transcripts were encoded using a hybrid natural language processing approach. Semantic representations were generated using the **Sentence-Transformers model (all-MiniLM-L6-v2)** and compressed using PCA, while interpretable linguistic indicators—such as anatomical mentions, radiological findings, negations, and uncertainty markers—were extracted through rule-based clinical term parsing. To capture cognitive coordination between modalities, **cross-modal features** were computed, including gaze-to-speech temporal lag and gaze dwell within verbally referenced anatomical regions.
+Speech transcripts were encoded using **Sentence-Transformers (all-MiniLM-L6-v2)** combined with interpretable linguistic features such as anatomical mentions, radiological findings, negations, and uncertainty markers.
 
-All modalities were standardized and combined into a **46-dimensional multimodal behavioral feature representation** per session. Latent clinician interaction patterns were identified using **density-based clustering (HDBSCAN)**, yielding **two behavioral groups (k = 2)** with a silhouette score of **0.1129**. A systematic **feature ablation analysis** demonstrated that **gaze behavioral features alone achieved the highest cluster separability (silhouette = 0.3047)**, followed by speech features (0.2843), indicating that visual search behavior provides the strongest signal for differentiating clinician strategies.
+The resulting **46-dimensional multimodal behavioral representation** was analyzed using unsupervised clustering, revealing **three clinician reading strategies**:
 
-The proposed framework integrates **eye-tracking analytics, transformer-based language embeddings, dimensionality reduction, cross-modal temporal analysis, and density-based unsupervised clustering** to model clinician diagnostic behavior from multimodal interaction data.
+- **Mixed Strategy**
+- **Rapid Scanner**
+- **Focused Inspector**
 
+Feature ablation analysis shows that **gaze dynamics provide the strongest signal for differentiating clinician strategies**.
 
-## Stage 1: 
-A synthetic reading-session simulator generates multimodal clinician interaction data by producing gaze trajectories, dictation transcripts, and structured diagnostic findings from chest X-ray images, thereby enabling controlled experiments on multimodal temporal modeling of clinician behavior.
+---
+
+## Research Contributions
+
+This project provides the following contributions:
+
+1. **Multimodal representation of clinician behavior** combining gaze dynamics, speech embeddings, and cross-modal temporal features.
+2. **Unsupervised modeling of radiological reading strategies** using behavioral interaction signals.
+3. **Quantitative analysis of gaze–speech coordination** during clinical reasoning.
+4. **Feature ablation analysis** demonstrating that gaze behavior provides the dominant signal for distinguishing diagnostic workflows.
+
+---
+
+## Pipeline Overview
+
+The proposed system transforms multimodal clinician interaction signals into behavioral representations through a modular processing architecture.
+
+CXR Image
+   │
+   ├── Eye-tracking scanpaths
+   ├── Spoken diagnostic reasoning
+   │
+   ▼
+Multimodal Feature Extraction
+   │
+   ├── Gaze behavioral features
+   ├── Speech embeddings
+   ├── Cross-modal alignment metrics
+   │
+   ▼
+Behavioral Representation (46 features)
+   │
+   ▼
+Unsupervised Clustering
+   │
+   ▼
+Clinician Strategy Discovery
 
 
 ## 📊 Data Modalities
